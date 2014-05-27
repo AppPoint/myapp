@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="/myapp/src"/>
+	<classpathentry kind="src" path="/myapp/gen"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/google-play-services"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/google-play-services_lib"/>
+	<classpathentry kind="var" path="USER_HOME/Downloads/android-sdk-linux/extras/google/google_play_services/libproject/google-play-services_lib/libs/google-play-services.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
