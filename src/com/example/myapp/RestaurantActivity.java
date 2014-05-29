@@ -26,7 +26,7 @@ public class RestaurantActivity extends Activity {
         setContentView(R.layout.profile);
         try {
             JSONObject json = new JSONObject(getIntent().getStringExtra("Restaurant"));
-            restaurant = new Restaurant(json.getString("name"), json.getString("adress"), json.getDouble("latitude"),
+            restaurant = new Restaurant(json.getInt("id"), json.getString("name"), json.getString("adress"), json.getDouble("latitude"),
                     json.getDouble("longitude"), json.getString("placesID"), json.getString("description"),
                     json.getString("referencePlaces"), json.getBoolean("isPoint"));
             name = (TextView) findViewById(R.id.textName);
@@ -42,6 +42,7 @@ public class RestaurantActivity extends Activity {
                     @Override
                     public void onClick(View v) {
                         Intent i = new Intent(RestaurantActivity.this, ReservationActivity.class);
+                        i.putExtra("idRestaurant", restaurant.getId());
                         startActivity(i);
                     }
                 });

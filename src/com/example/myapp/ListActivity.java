@@ -40,7 +40,7 @@ public class ListActivity extends Activity {
             JSONArray restaurantList = jsonResult.getJSONArray("return");
             for (int i = 0; i < restaurantList.length(); i++){
                 JSONObject jsonRestaurant = (JSONObject) restaurantList.get(i);
-                arrayListRestaurant.add(new Restaurant(jsonRestaurant.getString("name"), jsonRestaurant.getString("adress"),
+                arrayListRestaurant.add(new Restaurant(jsonRestaurant.getInt("id"), jsonRestaurant.getString("name"), jsonRestaurant.getString("adress"),
                         jsonRestaurant.getDouble("latitude"), jsonRestaurant.getDouble("longitude"), jsonRestaurant.getString("placesID"),
                         jsonRestaurant.getString("description"), jsonRestaurant.getString("referencePlaces"), jsonRestaurant.getBoolean("isPoint")));
             }

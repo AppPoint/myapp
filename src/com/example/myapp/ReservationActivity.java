@@ -7,8 +7,11 @@ import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.*;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Calendar;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by patrick on 24/05/14.
@@ -26,6 +29,7 @@ public class ReservationActivity extends Activity implements DatePickerDialog.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.reservation);
 
+        final int id = getIntent().getIntExtra("idRestaurant", 0);
         name = (EditText) findViewById(R.id.editTextName);
         email = (EditText) findViewById(R.id.editTextEmail);
         date = (EditText) findViewById(R.id.editTextDate);
@@ -64,6 +68,29 @@ public class ReservationActivity extends Activity implements DatePickerDialog.On
             }
         });
 
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String nameStr = name.getText().toString();
+                String emailStr =email.getText().toString();
+                String dateStr = date.getText().toString();
+                String timeStr = time.getText().toString();
+                String urlStr = "http://192.168.56.1:8080/axis2/services/controler/createReservation?idRestaurant=" + id + "&" +
+                   "name=" + nameStr + "&email=" + emailStr + "&date=" + dateStr+ "&time=" + timeStr + "&response=application/json";
+                try {
+                    String response = new Controler().execute(urlStr).get();
+                    JSONObject json = new JSONObject(response);
+                    Toast.makeText(getApplicationContext(), json.getString("return"), Toast.LENGTH_LONG).show();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
 
     }
 

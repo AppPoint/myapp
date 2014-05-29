@@ -7,6 +7,7 @@ import org.json.JSONObject;
  * Created by patrick on 24/05/14.
  */
 public class Restaurant {
+    private int id;
     private String name;
     private String adress;
     private Double latitude;
@@ -17,7 +18,8 @@ public class Restaurant {
     private boolean isPoint;
 
 
-    public Restaurant(String name, String adress, Double latitude, Double longitude, String placesID, String description, String referencePlaces, boolean isPoint) {
+    public Restaurant(int id, String name, String adress, Double latitude, Double longitude, String placesID, String description, String referencePlaces, boolean isPoint) {
+        this.id = id;
         this.name = name;
         this.adress = adress;
         this.latitude = latitude;
@@ -26,6 +28,14 @@ public class Restaurant {
         this.description = description;
         this.referencePlaces = referencePlaces;
         this.isPoint = isPoint;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -95,7 +105,8 @@ public class Restaurant {
     @Override
     public String toString() {
         return "Restaurant{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", adress='" + adress + '\'' +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
@@ -108,7 +119,8 @@ public class Restaurant {
 
     public String toJSON(){
         try {
-            return new JSONObject().put("name", this.name)
+            return new JSONObject().put("id", id)
+                    .put("name", this.name)
                     .put("adress", this.adress)
                     .put("latitude", this.latitude)
                     .put("longitude", this.longitude)
