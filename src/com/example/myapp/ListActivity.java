@@ -29,15 +29,20 @@ public class ListActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list);
 
+        JSONArray restaurantList;
         latitude = getIntent().getDoubleExtra("latitude", 0);
         longitude = getIntent().getDoubleExtra("longitude", 0);
         list = (ListView) findViewById(R.id.listView);
-        String urlStr = "http://192.168.56.1:8080/axis2/services/controler/listRestaurants?latitude=" + latitude
+        String urlStr = "http://" + getString(R.string.ip) + ":8080/axis2/services/controler/listRestaurants?latitude=" + latitude
                 + "&longitude=" + longitude + "&response=application/json";
         try {
             String json = controler.execute(urlStr).get();
             JSONObject jsonResult = new JSONObject(json);
-            JSONArray restaurantList = jsonResult.getJSONArray("return");
+            if (jsonResult.get("return") instanceof JSONObject){
+                restaurantList = new JSONArray("[" + jsonResult.getJSONObject("return").toString() + "]");
+            }else{
+                restaurantList = jsonResult.getJSONArray("return");
+            }
             for (int i = 0; i < restaurantList.length(); i++){
                 JSONObject jsonRestaurant = (JSONObject) restaurantList.get(i);
                 arrayListRestaurant.add(new Restaurant(jsonRestaurant.getInt("id"), jsonRestaurant.getString("name"), jsonRestaurant.getString("adress"),

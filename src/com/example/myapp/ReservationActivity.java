@@ -75,7 +75,7 @@ public class ReservationActivity extends Activity implements DatePickerDialog.On
                 String emailStr =email.getText().toString();
                 String dateStr = date.getText().toString();
                 String timeStr = time.getText().toString();
-                String urlStr = "http://192.168.56.1:8080/axis2/services/controler/createReservation?idRestaurant=" + id + "&" +
+                String urlStr = "http://" + getString(R.string.ip) + ":8080/axis2/services/controler/createReservation?idRestaurant=" + id + "&" +
                    "name=" + nameStr + "&email=" + emailStr + "&date=" + dateStr+ "&time=" + timeStr + "&response=application/json";
                 try {
                     String response = new Controler().execute(urlStr).get();

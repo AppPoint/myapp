@@ -46,8 +46,8 @@ public class MyActivity extends Activity implements GoogleMap.OnMarkerClickListe
         Location mylocation = locationManager.getLastKnownLocation(provider);
         LatLng latLng;
         if (mylocation == null){
-            Double longitude = -43.3445191;
-            Double latitude = -22.9531;
+            Double longitude = -43.341259;
+            Double latitude = -22.9533;
             latLng = new LatLng(latitude, longitude);
         }else{
             latLng = new LatLng(mylocation.getLatitude(), mylocation.getLongitude());
@@ -79,15 +79,20 @@ public class MyActivity extends Activity implements GoogleMap.OnMarkerClickListe
     }
 
     private void updateMap(Double latitude, Double longitude) {
-        String urlStr = "http://192.168.56.1:8080/axis2/services/controler/listRestaurants?latitude=" + latitude
+        String urlStr = "http://" + getString(R.string.ip) + ":8080/axis2/services/controler/listRestaurants?latitude=" + latitude
                 + "&longitude=" + longitude + "&response=application/json";
         Marker marker;
         Controler controler = new Controler();
+        JSONArray restaurantList;
 
         try {
             String json = controler.execute(urlStr).get();
             JSONObject jsonResult = new JSONObject(json);
-            JSONArray restaurantList = jsonResult.getJSONArray("return");
+            if (jsonResult.get("return") instanceof JSONObject){
+                restaurantList = new JSONArray("[" + jsonResult.getJSONObject("return").toString() + "]");
+            }else{
+                restaurantList = jsonResult.getJSONArray("return");
+            }
             for (int i = 0; i < restaurantList.length(); i++){
                 JSONObject jsonRestaurant = (JSONObject) restaurantList.get(i);
                 Restaurant restaurant = new Restaurant(jsonRestaurant.getInt("id"), jsonRestaurant.getString("name"), jsonRestaurant.getString("adress"),
