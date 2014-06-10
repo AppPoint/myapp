@@ -1,5 +1,7 @@
 package com.example.myapp;
 
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.AsyncTask;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -13,7 +15,21 @@ import java.net.URI;
 /**
  * Created by patrick on 26/05/14.
  */
-public class Controler extends AsyncTask<String, String, String> {
+public abstract class Controler extends AsyncTask<String, String, String> implements CallbackJSON {
+    private ProgressDialog progressDialog;
+    private Context context;
+
+    public Controler(Context context){
+        this.context = context;
+    }
+
+    @Override
+    protected void onPreExecute() {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setMessage("Carregando...");
+        if(progressDialog != null) progressDialog.show();
+    }
+
     @Override
     protected String doInBackground(String... params) {
 
@@ -45,5 +61,14 @@ public class Controler extends AsyncTask<String, String, String> {
             }
 
         return linha;
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+        super.onPostExecute(s);
+        if(progressDialog != null) progressDialog.dismiss();
+        if (s != null){
+            receiveData(s);
+        }
     }
 }

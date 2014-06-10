@@ -23,10 +23,9 @@ import java.util.concurrent.ExecutionException;
 public class MyActivity extends Activity implements GoogleMap.OnMarkerClickListener, LocationListener{
 
     private GoogleMap googleMap;
-    private Restaurant restaurant;
     private HashMap<String, Restaurant> hashMapRestaurant = new HashMap<String, Restaurant>();
     private HashMap<String, Marker> hashMapMarker = new HashMap<String, Marker>();
-    private Button list;
+    private Button list, refresh;
     /**
      * Called when the activity is first created.
      */
@@ -35,6 +34,7 @@ public class MyActivity extends Activity implements GoogleMap.OnMarkerClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        refresh = (Button) findViewById(R.id.refresh);
         list = (Button) findViewById(R.id.button);
         googleMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
         googleMap.setOnMarkerClickListener(this);
@@ -63,6 +63,13 @@ public class MyActivity extends Activity implements GoogleMap.OnMarkerClickListe
             }
         });
 
+        refresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateMap(googleMap.getCameraPosition().target.latitude, googleMap.getCameraPosition().target.longitude);
+            }
+        });
+
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
         Toast.makeText(getApplicationContext(), "ok", Toast.LENGTH_SHORT).show();
@@ -81,45 +88,44 @@ public class MyActivity extends Activity implements GoogleMap.OnMarkerClickListe
     private void updateMap(Double latitude, Double longitude) {
         String urlStr = "http://" + getString(R.string.ip) + ":8080/axis2/services/controler/listRestaurants?latitude=" + latitude
                 + "&longitude=" + longitude + "&response=application/json";
-        Marker marker;
-        Controler controler = new Controler();
-        JSONArray restaurantList;
-
-        try {
-            String json = controler.execute(urlStr).get();
-            JSONObject jsonResult = new JSONObject(json);
-            if (jsonResult.get("return") instanceof JSONObject){
-                restaurantList = new JSONArray("[" + jsonResult.getJSONObject("return").toString() + "]");
-            }else{
-                restaurantList = jsonResult.getJSONArray("return");
-            }
-            for (int i = 0; i < restaurantList.length(); i++){
-                JSONObject jsonRestaurant = (JSONObject) restaurantList.get(i);
-                Restaurant restaurant = new Restaurant(jsonRestaurant.getInt("id"), jsonRestaurant.getString("name"), jsonRestaurant.getString("adress"),
-                      jsonRestaurant.getDouble("latitude"), jsonRestaurant.getDouble("longitude"), jsonRestaurant.getString("placesID"),
-                      jsonRestaurant.getString("description"), jsonRestaurant.getString("referencePlaces"), jsonRestaurant.getBoolean("isPoint"));
-                removeMarker(restaurant.getPlacesID());
-                if (jsonRestaurant.getBoolean("isPoint")){
-                    LatLng latLng = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
-                    marker = googleMap.addMarker(new MarkerOptions().position(latLng)
-                            .title(restaurant.getName())
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.restaurant_point)));
-                } else{
-                    LatLng latLng = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
-                    marker = googleMap.addMarker(new MarkerOptions().position(latLng)
-                            .title(restaurant.getName())
-                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.restaurant)));
+        Controler controler = new Controler(MyActivity.this) {
+            @Override
+            public void receiveData(String result) {
+                JSONArray restaurantList;
+                Marker marker;
+                try {
+                    JSONObject jsonResult = new JSONObject(result);
+                    if (jsonResult.get("return") instanceof JSONObject){
+                        restaurantList = new JSONArray("[" + jsonResult.getJSONObject("return").toString() + "]");
+                    }else{
+                        restaurantList = jsonResult.getJSONArray("return");
+                    }
+                    for (int i = 0; i < restaurantList.length(); i++){
+                        JSONObject jsonRestaurant = (JSONObject) restaurantList.get(i);
+                        Restaurant restaurant = new Restaurant(jsonRestaurant.getInt("id"), jsonRestaurant.getString("name"), jsonRestaurant.getString("adress"),
+                                jsonRestaurant.getDouble("latitude"), jsonRestaurant.getDouble("longitude"), jsonRestaurant.getString("placesID"),
+                                jsonRestaurant.getString("description"), jsonRestaurant.getString("referencePlaces"), jsonRestaurant.getBoolean("isPoint"));
+                        removeMarker(restaurant.getPlacesID());
+                        if (jsonRestaurant.getBoolean("isPoint")){
+                            LatLng latLng = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
+                            marker = googleMap.addMarker(new MarkerOptions().position(latLng)
+                                    .title(restaurant.getName())
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.restaurant_point)));
+                        } else{
+                            LatLng latLng = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
+                            marker = googleMap.addMarker(new MarkerOptions().position(latLng)
+                                    .title(restaurant.getName())
+                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.restaurant)));
+                        }
+                        hashMapMarker.put(restaurant.getPlacesID(), marker);
+                        hashMapRestaurant.put(marker.getId(), restaurant);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                hashMapMarker.put(restaurant.getPlacesID(), marker);
-                hashMapRestaurant.put(marker.getId(), restaurant);
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        };
+        controler.execute(urlStr);
 
     }
 
@@ -135,7 +141,6 @@ public class MyActivity extends Activity implements GoogleMap.OnMarkerClickListe
     @Override
     public boolean onMarkerClick(Marker marker) {
         Restaurant r = hashMapRestaurant.get(marker.getId());
-        //Toast.makeText(getApplicationContext(), r.toString(), Toast.LENGTH_SHORT).show();
         Intent i = new Intent(this, RestaurantActivity.class);
         i.putExtra("Restaurant", r.toJSON());
         startActivity(i);
@@ -144,7 +149,7 @@ public class MyActivity extends Activity implements GoogleMap.OnMarkerClickListe
 
     @Override
     public void onLocationChanged(Location location) {
-        updateMap(location.getLatitude(), location.getLongitude());
+//        updateMap(location.getLatitude(), location.getLongitude());
     }
 
     @Override

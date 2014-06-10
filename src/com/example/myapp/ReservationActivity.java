@@ -77,17 +77,18 @@ public class ReservationActivity extends Activity implements DatePickerDialog.On
                 String timeStr = time.getText().toString();
                 String urlStr = "http://" + getString(R.string.ip) + ":8080/axis2/services/controler/createReservation?idRestaurant=" + id + "&" +
                    "name=" + nameStr + "&email=" + emailStr + "&date=" + dateStr+ "&time=" + timeStr + "&response=application/json";
-                try {
-                    String response = new Controler().execute(urlStr).get();
-                    JSONObject json = new JSONObject(response);
-                    Toast.makeText(getApplicationContext(), json.getString("return"), Toast.LENGTH_LONG).show();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                Controler controler = new Controler(ReservationActivity.this) {
+                    @Override
+                    public void receiveData(String result) {
+                        try {
+                            JSONObject json = new JSONObject(result);
+                            Toast.makeText(getApplicationContext(), json.getString("return"), Toast.LENGTH_LONG).show();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                };
+                controler.execute(urlStr);
 
             }
         });
