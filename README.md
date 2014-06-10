@@ -1,7 +1,7 @@
 App Android Point
 ==========
 
-Aplicativo Android do Point
+Aplicativo Android do Point feito na Universidade Federal do Rio de Janeiro para a disciplina Software para Smartphone com o professor Sérgio Barbosa Villas-Boas (www.sbvb.com.br)
 
 # Requisitos
 
